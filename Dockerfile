@@ -6,7 +6,7 @@ WORKDIR /source
 # Copy the project file into the container
 COPY *.csproj ./
 RUN dotnet restore
-
+#not rrunning
 # Copy the rest of the files into the container
 COPY . ./
 
