@@ -8,7 +8,7 @@ spec:
   template:
     metadata:
       annotations:
-        run.googleapis.com/cloudsql-instances: ${DEV_CLOUDSQL_CONNECTION_STRING} # just for illustration
+      #  run.googleapis.com/cloudsql-instances: ${DEV_CLOUDSQL_CONNECTION_STRING} # just for illustration
     spec:
       containers:
         - name: dotnet-app
