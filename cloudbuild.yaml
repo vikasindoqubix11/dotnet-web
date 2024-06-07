@@ -1,28 +1,57 @@
+# steps:
+#   # Build the Docker image--Image of docker file
+#   - name: 'gcr.io/cloud-builders/docker'
+#     args:
+#       - build
+#       - '-t'
+#       - 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
+#       - '.'
+ 
+#   # Push the Docker image to Artifact Registry
+#   - name: 'gcr.io/cloud-builders/docker'
+#     args:
+#       - push
+#       - 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
+ 
+#   # Deploy to Cloud Run--name-> CLI goodle cloud sdk kit 
+#   # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+#   #   entrypoint: 'gcloud'
+#   #   args:
+#   #     - run
+#   #     - deploy
+#   #     - assessment
+#   #     - '--image'
+#   #     - 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
+#   #     - '--region'
+#   #     - us-central1
+# options:
+#   logging: CLOUD_LOGGING_ONLY
+
 steps:
-  # Build the Docker image--Image of docker file
+  # Build
   - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - build
-      - '-t'
-      - 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
-      - '.'
- 
-  # Push the Docker image to Artifact Registry
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest', '.']
+
+  # Push
   - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
+
+  # Trigger Cloud Deploy with a Unique Release Name
+  - name: 'gcr.io/cloud-builders/gcloud'
     args:
-      - push
-      - 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
- 
-  # Deploy to Cloud Run--name-> CLI goodle cloud sdk kit 
-  # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  #   entrypoint: 'gcloud'
-  #   args:
-  #     - run
-  #     - deploy
-  #     - assessment
-  #     - '--image'
-  #     - 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
-  #     - '--region'
-  #     - us-central1
+      - 'deploy'
+      - 'releases'
+      - 'create'
+      - 'release-$_COMMIT_SHA'  
+      - '--delivery-pipeline=dev'
+      - '--region=us-central1'
+      - '--skaffold-file=skaffold.yaml'
+      - '--images=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
+      - '--annotations=commitSha=$COMMIT_SHA'
+      - '--annotations=buildId=$BUILD_ID'
+
 options:
   logging: CLOUD_LOGGING_ONLY
+substitutions:
+  _COMMIT_SHA: $COMMIT_SHA
+  _BUILD_ID: $BUILD_ID

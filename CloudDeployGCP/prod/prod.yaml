@@ -1,0 +1,30 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: dotnet-app-prod
+  annotations:
+    run.googleapis.com/description: dotnet-app-prod
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "2"
+        run.googleapis.com/startup-cpu-boost: "true"
+        # run.googleapis.com/cloudsql-instances: ${PROD_CLOUDSQL_CONNECTION_STRING} # just for illustration
+    spec:
+      containers:
+        - name: dotnet-app-dev
+          image: us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest
+          ports:
+            - name: http1
+              containerPort: 3000
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 2Gi
+          startupProbe:
+            timeoutSeconds: 600
+            periodSeconds: 600
+            failureThreshold: 1
+            tcpSocket:
+              port: 3000

@@ -1,0 +1,15 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata: 
+  name: dotnet-app
+profiles:
+- name: dev
+  manifests:
+    rawYaml:
+    - CloudDeployGCP/dev/dev.yaml
+# - name: prod
+#   manifests:
+#     rawYaml:
+#     - CloudDeployGCP/prod/prod.yaml
+deploy:
+  cloudrun: {}

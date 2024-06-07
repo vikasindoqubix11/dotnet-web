@@ -1,0 +1,22 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: dotnet-app-dev
+  annotations:
+    run.googleapis.com/description: dotnet-app-dev
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/cloudsql-instances: ${DEV_CLOUDSQL_CONNECTION_STRING} # just for illustration
+    spec:
+      containers:
+        - name: dotnet-app
+          image: us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest
+          ports:
+            - name: http1
+              containerPort: 3000
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
