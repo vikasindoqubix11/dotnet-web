@@ -13,7 +13,7 @@ steps:
       - 'deploy'
       - 'releases'
       - 'create'
-      - 'release-$_COMMIT_SHA'  
+      - 'release-static2'  
       - '--delivery-pipeline=dev'
       - '--region=us-central1'
       - '--skaffold-file=skaffold.yaml'
