@@ -1,9 +1,9 @@
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
 metadata:
-  name: dev
+  name: dotnet-app-dev
   labels: 
-    app: dev
+    app: dotnet-app-dev
 description: Cloud Deploy Pipeline for Dotnet App
 serialPipeline:
   stages:
