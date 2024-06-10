@@ -3,6 +3,10 @@ variables:
   RestoreBuildProjects: '**/*.csproj'
   BuildConfiguration: 'Release'  # Define the BuildConfiguration variable
 
+# Specify the pool and agent
+pool:
+  vmImage: 'windows-latest'  # Specify the agent pool and image
+
 steps:
   # Restore dependencies
   - task: DotNetCoreCLI@2
