@@ -39,7 +39,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
 
-  # Generate a unique release name using the commit SHA and build ID
+  # Trigger Cloud Deploy with a Unique Release Name
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
@@ -61,3 +61,4 @@ options:
 substitutions:
   _COMMIT_SHA: $COMMIT_SHA
   _BUILD_ID: $BUILD_ID
+
