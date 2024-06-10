@@ -1,31 +1,29 @@
 # Define variables
 variables:
   RestoreBuildProjects: '**/*.csproj'
-  BuildConfiguration: 'Release'
+  BuildConfiguration: 'Release'  # Define the BuildConfiguration variable
 
-# Restore dependencies
 steps:
-- task: DotNetCoreCLI@2
-  displayName: 'Restore dependencies'
-  inputs:
-    command: restore
-    projects: '$(RestoreBuildProjects)'
+  # Restore dependencies
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore dependencies'
+    inputs:
+      command: restore
+      projects: '$(RestoreBuildProjects)'
 
-# Build project
-steps:
-- task: DotNetCoreCLI@2
-  displayName: 'Build project'
-  inputs:
-    command: build
-    projects: '$(RestoreBuildProjects)'
-    arguments: '--configuration $(BuildConfiguration)'
+  # Build project
+  - task: DotNetCoreCLI@2
+    displayName: 'Build project'
+    inputs:
+      command: build
+      projects: '$(RestoreBuildProjects)'
+      arguments: '--configuration $(BuildConfiguration)'
 
-# Publish project
-steps:
-- task: DotNetCoreCLI@2
-  displayName: 'Publish project'
-  inputs:
-    command: publish
-    publishWebProjects: true
-    arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
-    zipAfterPublish: true
+  # Publish project
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish project'
+    inputs:
+      command: publish
+      publishWebProjects: true
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+      zipAfterPublish: true
