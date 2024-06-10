@@ -1,3 +1,35 @@
+# steps:
+#   # Build
+#   - name: 'gcr.io/cloud-builders/docker'
+#     args: ['build', '-t', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest', '.']
+
+#   # Push
+#   - name: 'gcr.io/cloud-builders/docker'
+#     args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
+
+#   # Trigger Cloud Deploy with a Unique Release Name
+#   - name: 'gcr.io/cloud-builders/gcloud'
+#     args:
+#       - 'deploy'
+#       - 'releases'
+#       - 'create'
+#       - 'release-static2'  
+#       - '--delivery-pipeline=dev'
+#       - '--region=us-central1'
+#       - '--skaffold-file=skaffold.yaml'
+#       - '--images=web=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
+#       - '--annotations=commitSha=$COMMIT_SHA'
+#       - '--annotations=buildId=$BUILD_ID'
+
+# options:
+#   logging: CLOUD_LOGGING_ONLY
+
+# substitutions:
+#   _COMMIT_SHA: $COMMIT_SHA
+#   _BUILD_ID: $BUILD_ID
+
+
+
 steps:
   # Build
   - name: 'gcr.io/cloud-builders/docker'
@@ -7,19 +39,21 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
 
-  # Trigger Cloud Deploy with a Unique Release Name
+  # Generate a unique release name using the commit SHA and build ID
   - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
     args:
-      - 'deploy'
-      - 'releases'
-      - 'create'
-      - 'release-static2'  
-      - '--delivery-pipeline=dev'
-      - '--region=us-central1'
-      - '--skaffold-file=skaffold.yaml'
-      - '--images=web=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
-      - '--annotations=commitSha=$COMMIT_SHA'
-      - '--annotations=buildId=$BUILD_ID'
+      - '-c'
+      - |
+        set -e
+        RELEASE_NAME="release-$(date +%Y%m%d%H%M%S)-$BUILD_ID"
+        gcloud deploy releases create "$RELEASE_NAME" \
+          --delivery-pipeline=dev \
+          --region=us-central1 \
+          --skaffold-file=skaffold.yaml \
+          --images=web=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest \
+          --annotations=commitSha=$COMMIT_SHA \
+          --annotations=buildId=$BUILD_ID
 
 options:
   logging: CLOUD_LOGGING_ONLY
