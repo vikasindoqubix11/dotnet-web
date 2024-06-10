@@ -1,33 +1,3 @@
-# steps:
-#   # Build
-#   - name: 'gcr.io/cloud-builders/docker'
-#     args: ['build', '-t', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest', '.']
-
-#   # Push
-#   - name: 'gcr.io/cloud-builders/docker'
-#     args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
-
-#   # Trigger Cloud Deploy with a Unique Release Name
-#   - name: 'gcr.io/cloud-builders/gcloud'
-#     args:
-#       - 'deploy'
-#       - 'releases'
-#       - 'create'
-#       - 'release-$_COMMIT_SHA'   
-#       - '--delivery-pipeline=dev'
-#       - '--region=us-central1'
-#       - '--skaffold-file=skaffold.yaml'
-#       - '--images=web=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
-#       - '--annotations=commitSha=$COMMIT_SHA'
-#       - '--annotations=buildId=$BUILD_ID'
-
-# options:
-#   logging: CLOUD_LOGGING_ONLY
-
-# substitutions:
-#   _COMMIT_SHA: $COMMIT_SHA
-#   _BUILD_ID: $BUILD_ID
-
 steps:
   # Build
   - name: 'gcr.io/cloud-builders/docker'
@@ -37,30 +7,19 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
 
-  # Sanitize commit SHA
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        COMMIT_SHA="${_COMMIT_SHA,,}"
-        COMMIT_SHA="${COMMIT_SHA//[^a-z0-9-]/-}"
-        COMMIT_SHA="${COMMIT_SHA%-}"
-        echo "COMMIT_SHA=$COMMIT_SHA" > /workspace/sanitized_commit_sha.txt
-
   # Trigger Cloud Deploy with a Unique Release Name
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'deploy'
       - 'releases'
       - 'create'
-      - 'release-$(cat /workspace/sanitized_commit_sha.txt)'
+      - 'release-$_COMMIT_SHA'   
       - '--delivery-pipeline=dev'
       - '--region=us-central1'
       - '--skaffold-file=skaffold.yaml'
       - '--images=web=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
-      - '--annotations=commitSha=$_COMMIT_SHA'
-      - '--annotations=buildId=$_BUILD_ID'
+      - '--annotations=commitSha=$COMMIT_SHA'
+      - '--annotations=buildId=$BUILD_ID'
 
 options:
   logging: CLOUD_LOGGING_ONLY
@@ -68,6 +27,7 @@ options:
 substitutions:
   _COMMIT_SHA: $COMMIT_SHA
   _BUILD_ID: $BUILD_ID
+
 
 
 
