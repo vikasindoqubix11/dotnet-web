@@ -1,19 +1,14 @@
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
 metadata:
-  name: dotnet-app
+  name: dev
   labels: 
-    app: dotnet-app
+    app: dev
 description: Cloud Deploy Pipeline for Dotnet App
 serialPipeline:
   stages:
     - targetId: dotnet-app-dev
       profiles:
         - dev
-      #config:
-      #  region: us-central1  # Specify the region for the dev deployment target
-    - targetId: dotnet-app-prod
-      profiles:
-        - prod
-      #config:
-        #region: us-central1  # Specify the region for the prod deployment target
+      config:
+        region: us-central1  # Specify the region for the dev deployment target
