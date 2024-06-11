@@ -68,17 +68,12 @@ stages:
   dependsOn: Build
   condition: succeeded()
   jobs:
-  - job: DeployJob
+  - deployment: DeployJob
     displayName: 'Deploy Job'
-    steps:
-    # Placeholder for deploy steps
-    - script: echo 'Deploying...'
-
-    # Approval check before deployment
-    - task: ManualValidation@0
-      displayName: 'Approval Check'
-      inputs:
-        notifyUsers: 'vikas.kumar79120@gmail.com' 
-        instructions: 'Please approve the deployment'
-        onTimeout: 'reject'
-        timeout: '0:30:00'  # Timeout set to 30 minutes
+    environment: 'Production'  # Specify the environment with approvals
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Placeholder for deploy steps
+          - script: echo 'Deploying...'
