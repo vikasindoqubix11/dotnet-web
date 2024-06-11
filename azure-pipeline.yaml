@@ -3,11 +3,23 @@ variables:
   RestoreBuildProjects: '**/*.csproj'
   BuildConfiguration: 'Release'  # Define the BuildConfiguration variable
 
+# Specify the trigger
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
 # Specify the pool and agent
 pool:
   vmImage: 'windows-latest'  # Specify the agent pool and image
 
+# Define the steps
 steps:
+  # Checkout the code
+  - checkout: self
+    displayName: 'Checkout Code'
+
   # Restore dependencies
   - task: DotNetCoreCLI@2
     displayName: 'Restore dependencies'
@@ -31,3 +43,11 @@ steps:
       publishWebProjects: true
       arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
       zipAfterPublish: true
+
+  # Publish artifacts
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Build Artifacts'
+    inputs:
+      PathtoPublish: '$(build.artifactstagingdirectory)'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
