@@ -8,45 +8,77 @@ trigger:
   branches:
     include:
       - main
+  paths:
+    exclude:
+      - azure-pipelines.yaml  # Exclude changes to the pipeline YAML file
+
+# Specify the PR trigger
+pr: none  # Exclude pull requests from triggering the pipeline
 
 # Specify the pool and agent
 pool:
   vmImage: 'windows-latest'  # Specify the agent pool and image
 
-# Define the steps
-steps:
-  # Checkout the code
-  - checkout: self
-    displayName: 'Checkout Code'
+# Define the stages
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    # Checkout the code
+    - checkout: self
+      displayName: 'Checkout Code'
 
-  # Restore dependencies
-  - task: DotNetCoreCLI@2
-    displayName: 'Restore dependencies'
-    inputs:
-      command: restore
-      projects: '$(RestoreBuildProjects)'
+    # Restore dependencies
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore dependencies'
+      inputs:
+        command: restore
+        projects: '$(RestoreBuildProjects)'
 
-  # Build project
-  - task: DotNetCoreCLI@2
-    displayName: 'Build project'
-    inputs:
-      command: build
-      projects: '$(RestoreBuildProjects)'
-      arguments: '--configuration $(BuildConfiguration)'
+    # Build project
+    - task: DotNetCoreCLI@2
+      displayName: 'Build project'
+      inputs:
+        command: build
+        projects: '$(RestoreBuildProjects)'
+        arguments: '--configuration $(BuildConfiguration)'
 
-  # Publish project
-  - task: DotNetCoreCLI@2
-    displayName: 'Publish project'
-    inputs:
-      command: publish
-      publishWebProjects: true
-      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
-      zipAfterPublish: true
+    # Publish project
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish project'
+      inputs:
+        command: publish
+        publishWebProjects: true
+        arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+        zipAfterPublish: true
 
-  # Publish artifacts
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Build Artifacts'
-    inputs:
-      PathtoPublish: '$(build.artifactstagingdirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
+    # Publish artifacts
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        PathtoPublish: '$(build.artifactstagingdirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy Job'
+    steps:
+    # Placeholder for deploy steps
+    - script: echo 'Deploying...'
+
+    # Approval check before deployment
+    - task: ManualValidation@0
+      displayName: 'Approval Check'
+      inputs:
+        notifyUsers: 'vikas.kumar79120@gmail.com' 
+        instructions: 'Please approve the deployment'
+        onTimeout: 'reject'
+        timeout: '0:30:00'  # Timeout set to 30 minutes
