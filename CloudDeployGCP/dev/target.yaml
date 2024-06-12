@@ -9,11 +9,11 @@ run:
 
 ---
 
-# apiVersion: deploy.cloud.google.com/v1
-# kind: Target
-# metadata:
-#   name: dotnet-prod
-#   labels: {}
-# requireApproval: true
-# run:
-#   location: us-central1
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: dotnet-prod
+  labels: {}
+requireApproval: true
+run:
+  location: us-central1
