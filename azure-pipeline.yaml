@@ -189,7 +189,7 @@ stages:
               ConnectionType: 'AzureRM'
               azureSubscription: 'Free Trial(c76eba7d-3791-4b1a-ac0a-e3914e169a45)'
               appType: 'webApp'
-              WebAppName: 'Dotnetapppppp-Dev'
+              WebAppName: 'Dotnetapppppp'
               packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
 
           # Placeholder for additional deployment steps
