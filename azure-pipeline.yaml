@@ -1,3 +1,103 @@
+# # Define variables
+# variables:
+#   RestoreBuildProjects: '**/*.csproj'
+#   BuildConfiguration: 'Release'
+
+# # Specify the trigger
+# trigger:
+#   branches:
+#     include:
+#       - main
+#   paths:
+#     exclude:
+#       - azure-pipelines.yaml
+
+# # Specify the PR trigger
+# pr: none
+
+# # Specify the pool and agent
+# pool:
+#   vmImage: 'windows-latest'
+
+# # Define the stages
+# stages:
+# - stage: Build
+#   displayName: 'Build Stage'
+#   jobs:
+#   - job: BuildJob
+#     displayName: 'Build Job'
+#     steps:
+#     # Checkout the code
+#     - checkout: self
+#       displayName: 'Checkout Code'
+
+#     # Restore dependencies
+#     - task: DotNetCoreCLI@2
+#       displayName: 'Restore dependencies'
+#       inputs:
+#         command: restore
+#         projects: '$(RestoreBuildProjects)'
+
+#     # Build project
+#     - task: DotNetCoreCLI@2
+#       displayName: 'Build project'
+#       inputs:
+#         command: build
+#         projects: '$(RestoreBuildProjects)'
+#         arguments: '--configuration $(BuildConfiguration)'
+
+#     # Publish project
+#     - task: DotNetCoreCLI@2
+#       displayName: 'Publish project'
+#       inputs:
+#         command: publish
+#         publishWebProjects: true
+#         arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+#         zipAfterPublish: true
+
+#     # Publish artifacts
+#     - task: PublishBuildArtifacts@1
+#       displayName: 'Publish Build Artifacts'
+#       inputs:
+#         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#         ArtifactName: 'drop'
+#         publishLocation: 'Container'
+
+# - stage: Deploy
+#   displayName: 'Deploy Stage'
+#   dependsOn: Build
+#   condition: succeeded()
+#   jobs:
+#   - deployment: DeployJob
+#     displayName: 'Deploy Job'
+#     environment: 'Production'
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
+#           # Download artifacts
+#           - task: DownloadPipelineArtifact@2
+#             displayName: 'Download Build Artifacts'
+#             inputs:
+#               artifact: 'drop'
+#               path: '$(System.ArtifactsDirectory)'
+
+#           # Azure Web App Deployment
+#           - task: AzureRmWebAppDeployment@4
+#             displayName: 'Azure Web App Deploy'
+#             inputs:
+#               ConnectionType: 'AzureRM'
+#               azureSubscription: 'Free Trial(c76eba7d-3791-4b1a-ac0a-e3914e169a45)'
+#               appType: 'webApp'
+#               WebAppName: 'Dotnetapppppp'
+#               packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
+
+#           # Placeholder for additional deployment steps
+#           - script: echo 'Deploying...'
+
+
+
+
 # Define variables
 variables:
   RestoreBuildProjects: '**/*.csproj'
@@ -63,14 +163,14 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-- stage: Deploy
-  displayName: 'Deploy Stage'
+- stage: DeployToDev
+  displayName: 'Deploy to Dev Stage'
   dependsOn: Build
   condition: succeeded()
   jobs:
   - deployment: DeployJob
-    displayName: 'Deploy Job'
-    environment: 'Production'
+    displayName: 'Deploy to Dev Job'
+    environment: 'Dev'
     strategy:
       runOnce:
         deploy:
@@ -82,15 +182,47 @@ stages:
               artifact: 'drop'
               path: '$(System.ArtifactsDirectory)'
 
-          # Azure Web App Deployment
+          # Azure Web App Deployment to Dev
           - task: AzureRmWebAppDeployment@4
-            displayName: 'Azure Web App Deploy'
+            displayName: 'Azure Web App Deploy to Dev'
             inputs:
               ConnectionType: 'AzureRM'
               azureSubscription: 'Free Trial(c76eba7d-3791-4b1a-ac0a-e3914e169a45)'
               appType: 'webApp'
-              WebAppName: 'Dotnetapppppp'
+              WebAppName: 'Dotnetapppppp-Dev'
               packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
 
           # Placeholder for additional deployment steps
-          - script: echo 'Deploying...'
+          - script: echo 'Deploying to Dev...'
+
+- stage: DeployToProd
+  displayName: 'Deploy to Prod Stage'
+  dependsOn: DeployToDev
+  condition: succeeded()
+  jobs:
+  - deployment: DeployJob
+    displayName: 'Deploy to Prod Job'
+    environment: 'Prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Download artifacts
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifacts'
+            inputs:
+              artifact: 'drop'
+              path: '$(System.ArtifactsDirectory)'
+
+          # Azure Web App Deployment to Prod
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Azure Web App Deploy to Prod'
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Free Trial(c76eba7d-3791-4b1a-ac0a-e3914e169a45)'
+              appType: 'webApp'
+              WebAppName: 'Dotnetapppppp-Prod'
+              packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
+
+          # Placeholder for additional deployment steps
+          - script: echo 'Deploying to Prod...'
