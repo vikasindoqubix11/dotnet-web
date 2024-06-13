@@ -13,7 +13,7 @@ steps:
       - 'deploy'
       - 'releases'
       - 'create'
-      - 'release-$_COMMIT_SHA'   
+      - 'release-FEF4T4T'   
       - '--delivery-pipeline=dotnet-app-dev'
       - '--region=us-central1'
       - '--skaffold-file=skaffold.yaml'
