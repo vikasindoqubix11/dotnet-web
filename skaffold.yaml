@@ -1,11 +1,27 @@
+# apiVersion: skaffold/v4beta7
+# kind: Config
+# metadata: 
+#   name: dotnet-app
+# profiles:
+# - name: dev
+#   manifests:
+#     rawYaml:
+#     - CloudDeployGCP/dev/dev.yaml
+# deploy:
+#   cloudrun: {}
+
 apiVersion: skaffold/v4beta7
 kind: Config
 metadata: 
-  name: dotnet-app
+  name: dotnet-app-dev
+build:
+  artifacts:
+    - image: us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web
 profiles:
-- name: dev
-  manifests:
-    rawYaml:
-    - CloudDeployGCP/dev/dev.yaml
-deploy:
-  cloudrun: {}
+  - name: dotnet-dev
+    deploy:
+      cloudrun:
+        region: us-central1
+    manifests:
+      rawYaml:
+        - CloudDeployGCP/dev/dev.yaml
