@@ -40,19 +40,20 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
 
-  # Trigger Cloud Deploy with a Unique Release Name
+  # Generate a unique release name using a script
   - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
     args:
-      - 'deploy'
-      - 'releases'
-      - 'create'
-      - 'release-$(date +%Y%m%d%H%M%S)'  # Ensure unique release name
-      - '--delivery-pipeline=dotnet-app-dev'
-      - '--region=us-central1'
-      - '--skaffold-file=skaffold.yaml'
-      - '--images=web=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest'
-      - '--annotations=commitSha=$COMMIT_SHA'
-      - '--annotations=buildId=$BUILD_ID'
+      - '-c'
+      - |
+        export RELEASE_NAME=release-$(date +%Y%m%d%H%M%S)
+        gcloud deploy releases create $RELEASE_NAME \
+          --delivery-pipeline=dotnet-app-dev \
+          --region=us-central1 \
+          --skaffold-file=skaffold.yaml \
+          --images=web=us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest \
+          --annotations=commitSha=${COMMIT_SHA} \
+          --annotations=buildId=${BUILD_ID}
 
 options:
   logging: CLOUD_LOGGING_ONLY
