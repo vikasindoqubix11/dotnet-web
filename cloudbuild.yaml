@@ -41,9 +41,9 @@ steps:
     args: ['push', 'us-central1-docker.pkg.dev/cloud-run-tutorial-424007/new-web-repo-doc/web:latest']
 
   # Generate a unique release name and trigger Cloud Deploy
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   entrypoint: 'bash'
+  #   args:
       - '-c'
       - |
         RELEASE_NAME=release-$(date +%Y%m%d%H%M%S)
